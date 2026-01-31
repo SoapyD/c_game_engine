@@ -5,3 +5,4 @@ This project is the output of the GD-Engine tutorial in `Udemy`
 # Documentation Links
 
 [project description](docs/project_description.md)
+[section 2 notes](docs/section_2_notes.md)
