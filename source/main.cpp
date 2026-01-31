@@ -1,6 +1,7 @@
 #include <GL/glew.h> // OpenGL Extension Wrangler Library
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector> // used for storing vertices data
 
 int main()
 {
@@ -29,6 +30,12 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	std::vector<float> vertices = {
+		0.0f, 0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f
+	};
 	
 	// run game loop
 	while(!glfwWindowShouldClose(window)){
