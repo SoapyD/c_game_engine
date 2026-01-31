@@ -50,3 +50,40 @@ When drawing `vertices` the x, y and z values are represented by a score of `0 t
 Graphics APIs can render `vertices` either `clockwise` or `counter-clockwise`. OpenGL uses counter-clockwise by default.
 
 ![alt text](images/2-5.1.3-vertex_order.png "Vertex Order")
+
+
+## 6.1.4 - Graphics Pipeline
+
+In order for vertex data to be rendered on screen, it needs to pass through the `graphics pipeline`. These are a number of linear stages, some of which are programmable.
+
+* `Vertex shader` – Runs once per vertex. Transforms positions (model → world → clip space) and outputs per-vertex data (normals, UVs, colors).
+* `Primitive assembly` – Groups vertices into primitives (triangles, lines, points) based on indices and draw mode.
+* `Rasterization` – Converts primitives into fragments (potential pixels) and interpolates per-vertex data across them.
+* `Fragment shader` – Runs per fragment. Computes final color (lighting, textures, etc.).
+* `Testing and blending` – Depth/stencil tests decide if a fragment is kept; blending mixes it with existing framebuffer data (e.g. transparency).
+
+![alt text](images/2-6.1.4-graphics_pipeline.png "Vertex Order")
+
+We have the most control over the `vertex shader` and `fragment shader` stages.
+
+## 7.1.5 - Shaders
+
+In this lesson, we created the vertex and fragment shaders discussed above. What is essentially does is, At runtime, I upload a tiny program (as text) to the GPU driver, which compiles and runs it on massively parallel hardware.
+
+OpenGL was designed to be hardware agnostic, so doesn't do any of the work like loading files etc, we do all that. We then pass that data, which gets compiled into `GPU-specific machine code`, which differs depending on the `GPU` used.
+
+## 8.1.6 - Vertext Buffers and Rendering (First Triangle)
+
+We load our vertices data in GPU data via a `buffer`.
+
+A buffer in C++ is a block of `contiguous memory` used to store data temporarily.
+
+* Usually an array or memory allocation
+* Holds raw data (bytes, ints, floats, structs)
+* Often passed to APIs, hardware, or other code to read from
+
+For vertices, we create a buffer that'll start in the 0 `offset` position, then have a stride of `12 bytes` per vertices (and x, y and z float).
+
+![alt text](images/2-8.1.6-vertex_buffer.png "Vertex Buffer")
+
+In our code, we create a `vertex buffer` then populate it with our vertex data. We then pass that `vertex data` to the `shader` and ultimately draw it.
