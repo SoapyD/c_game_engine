@@ -41,9 +41,13 @@ int main()
 	std::string vertextShaderSource = R"(
 		#version 330 core
 		layout (location = 0) in vec3 position;
+		layout (location = 1) in vec3 color;
+
+		out vec3 vColor;
 
 		void main()
 		{
+			vColor = color;
 			gl_Position = vec4(position.x, position.y, position.z, 1.0);
 		}
 	)";
@@ -68,9 +72,12 @@ int main()
 		#version 330 core
 		out vec4 fragColor;
 
+		in vec3 vColor;
+		uniform vec4 uColor;
+
 		void main()
 		{
-			fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			fragColor = vec4(vColor, 1.0) * uColor;
 		}
 	)";
 
@@ -107,16 +114,23 @@ int main()
 	glDeleteShader(fragmentShader);
 
 	std::vector<float> vertices = {
-		0.0f, 0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
+	};
+
+	std::vector<unsigned int> indices = 
+	{
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	// we load our vertices data in GPU data via a buffer
 	// create a handle ID for the GPU buffer
 	GLuint vbo;
 	glGenBuffers( 1, &vbo);
-	// make it the current buffer for vertext data
+	// make it the current buffer for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vbo); // This defines a buffer that'll accept vertices data
 	// we then bind data to the buffer, which we know the size and data type of
 	// then say it'll be remaining on the screen as a static object
@@ -125,30 +139,46 @@ int main()
 	// delete the buffer once used
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+	GLuint ebo;
+	glGenBuffers( 1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW );
+	// delete the buffer once used
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	// we now need to tell the shader how to access the vertex data
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
 	// here we say how the vertex data should be accessed by the shader,
 	// start position, number of positions, normalise, memory size and offset
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), (void*)0);
+	// define info from index 0
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
+	// define info from index 1
+	glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	// delete the buffer and vertex array
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	GLint uColorLoc = glGetUniformLocation(shaderProgram, "uColor");
+
 	// run game loop
 	while(!glfwWindowShouldClose(window)){
 		// set the screen colour
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
+		glUniform4f(uColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
 		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
 		glfwSwapBuffers(window);

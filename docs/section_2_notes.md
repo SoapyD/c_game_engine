@@ -87,3 +87,38 @@ For vertices, we create a buffer that'll start in the 0 `offset` position, then 
 ![alt text](images/2-8.1.6-vertex_buffer.png "Vertex Buffer")
 
 In our code, we create a `vertex buffer` then populate it with our vertex data. We then pass that `vertex data` to the `shader` and ultimately draw it.
+
+## 9.1.7 - Vertex Colour
+
+We can add colour attributers to each `vertex` as well as position data. We did this by modifying the vertex shader by adding in a second index position to handle colours.
+
+![alt text](images/2-9.1.7-position_and_colour.png "Position and Colour")
+
+When we render the vertices, openGl will automatically calculate the gradient of colours needed when colours meet; it `interpolates` values automatically.
+
+### Vertex Squares
+
+In order to draw a `square`, we need to draw `two triangles`:
+
+![alt text](images/2-9.1.7-vertex_square.png "vertex Square")
+
+which can be done with `4 vertices`. Note that we don't repeat vertex data, as this would be inefficient. Instead, we reference it's index in the array instead. This reduces memory usage and alows for better GPU optisation. We do this via an `Element Buffer Object`, which stores indices data.
+
+```
+std::vector<float> vertices = {
+	0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
+};
+
+std::vector<unsigned int> indices = 
+{
+	0, 1, 2,
+	0, 2, 3
+};
+```
+
+### Uniform Colour Multiplier
+
+We also applied a uniform colour multipler to the shader which can be used to apply a tint, fade or modulate objects.
